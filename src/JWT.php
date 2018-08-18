@@ -17,11 +17,11 @@ class JWT
 
         $header = json_encode($header);
 
-        $base64UrlHeader = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
+        $base64UrlHeader = self::base64urlsEncode($header);
 
-        $base64UrlPayload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payload));
+        $base64UrlPayload = self::base64urlsEncode($payload);
 
-        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, 'secret', true);
+        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, $signature, true);
 
         $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
 
@@ -38,6 +38,21 @@ class JWT
     {
 //        return base64_encode($str);
         return base64_decode($str);
+    }
+
+    public static function base64urlsDecode($input)
+    {
+        $remainder = strlen($input) % 4;
+        if ($remainder) {
+            $padlen = 4 - $remainder;
+            $input .= str_repeat('=', $padlen);
+        }
+        return base64_decode(str_replace(['-', '_'],['+', '/'],  $input));
+    }
+
+    public static function base64urlsEncode($input)
+    {
+        return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($input));
     }
 }
 

@@ -6,10 +6,10 @@ use jwt\JWT;
 
 
 $params['sub'] = '1234567890';
-$params['name'] = 'John Doe';
+$params['name'] = 'Filipp Vasin';
 $params['iat'] = 1516239022;
 
 $payload = json_encode($params);
-$signature = 'secret';
+$signature = 'secret777';
 
 echo JWT::encoded($payload, $signature).PHP_EOL;

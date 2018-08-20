@@ -2,28 +2,25 @@
 
 namespace jwt;
 
+use jwt\Algorithms;
+
 class JWT
 {
-    private $header;
-    private $payload;
-    private $signature;
 
-
-    public static function encoded($payload, $signature)
+    public static function encoded($payload, $private_key, $alg = Algorithms::HS256)
     {
-
         $header['alg'] = 'HS256';
         $header['typ'] = 'JWT';
 
         $header = json_encode($header);
 
-        $base64UrlHeader = self::base64urlsEncode($header);
+        $base64UrlHeader = self::base64urlEncode($header);
 
-        $base64UrlPayload = self::base64urlsEncode($payload);
+        $base64UrlPayload = self::base64urlEncode($payload);
 
-        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, $signature, true);
+        $signature = self::sign($base64UrlHeader . "." . $base64UrlPayload, $private_key, $alg);
 
-        $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+        $base64UrlSignature = self::base64urlEncode($signature);
 
         $jwt = $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
 
@@ -34,13 +31,8 @@ class JWT
     {
 
     }
-    public static function get_base64($str)
-    {
-//        return base64_encode($str);
-        return base64_decode($str);
-    }
 
-    public static function base64urlsDecode($input)
+    private static function base64urlDecode($input)
     {
         $remainder = strlen($input) % 4;
         if ($remainder) {
@@ -50,12 +42,28 @@ class JWT
         return base64_decode(str_replace(['-', '_'],['+', '/'],  $input));
     }
 
-    public static function base64urlsEncode($input)
+    private static function base64urlEncode($input)
     {
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($input));
     }
-}
 
-//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
-//eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
-//XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o
+
+    private static function sign($str, $private_key, $alg = Algorithms::HS256)
+    {
+        if (Algorithms::getAlgorithm($alg) != 'unknown') {
+            return 'Algorithm unknown';
+        }
+
+        switch(Algorithms::getType($alg)) {
+            case 'hash_hmac':
+                return hash_hmac(Algorithms::getAlgorithm($alg), $str, $private_key, true);
+            case 'openssl':
+                $signature = '';
+                if (!openssl_sign($str, $signature, $private_key, Algorithms::getAlgorithm($alg))) {
+                    return 'Sign error';
+                } else {
+                    return $signature;
+                }
+        }
+    }
+}

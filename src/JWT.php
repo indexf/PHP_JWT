@@ -9,7 +9,7 @@ class JWT
 
     public static function encoded($payload, $private_key, $alg = Algorithms::HS256)
     {
-        $header['alg'] = 'HS256';
+        $header['alg'] = Algorithms::getAlgorithm($alg);
         $header['typ'] = 'JWT';
 
         $header = json_encode($header);

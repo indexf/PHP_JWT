@@ -50,7 +50,7 @@ class JWT
 
     private static function sign($str, $private_key, $alg = Algorithms::HS256)
     {
-        if (Algorithms::getAlgorithm($alg) != 'unknown') {
+        if (false === Algorithms::getAlgorithm($alg)) {
             return 'Algorithm unknown';
         }
 

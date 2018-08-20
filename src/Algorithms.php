@@ -31,7 +31,7 @@ class Algorithms
             case self::RS512:
                 return 'sha512';
             default:
-                return 'unknown';
+                return false;
         }
     }
 
@@ -54,7 +54,7 @@ class Algorithms
             case self::RS512:
                 return 'openssl';
             default:
-                return 'unknown';
+                return false;
         }
     }
 }

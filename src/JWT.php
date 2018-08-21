@@ -9,7 +9,7 @@ class JWT
 
     public static function encoded($payload, $private_key, $alg = Algorithms::HS256)
     {
-        $header['alg'] = Algorithms::getAlgorithm($alg);
+        $header['alg'] = Algorithms::getName($alg);
         $header['typ'] = 'JWT';
 
         $header = json_encode($header);
@@ -27,9 +27,9 @@ class JWT
         return $jwt;
     }
 
-    public static function decoded($jwt, $key)
+    public static function decoded($jwt, $private_key)
     {
-
+        return 'TODO';
     }
 
     private static function base64urlDecode($input)
@@ -56,6 +56,7 @@ class JWT
 
         switch(Algorithms::getType($alg)) {
             case 'hash_hmac':
+                echo Algorithms::getAlgorithm($alg);
                 return hash_hmac(Algorithms::getAlgorithm($alg), $str, $private_key, true);
             case 'openssl':
                 $signature = '';

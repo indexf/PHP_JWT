@@ -56,7 +56,6 @@ class JWT
 
         switch(Algorithms::getType($alg)) {
             case 'hash_hmac':
-                echo Algorithms::getAlgorithm($alg);
                 return hash_hmac(Algorithms::getAlgorithm($alg), $str, $private_key, true);
             case 'openssl':
                 $signature = '';
@@ -65,6 +64,43 @@ class JWT
                 } else {
                     return $signature;
                 }
+        }
+    }
+
+    private static function verify($msg, $signature, $key, $alg)
+    {
+        if (empty(static::$supported_algs[$alg])) {
+            throw new DomainException('Algorithm not supported');
+        }
+
+        list($function, $algorithm) = static::$supported_algs[$alg];
+        switch($function) {
+            case 'openssl':
+                $success = openssl_verify($msg, $signature, $key, $algorithm);
+                if ($success === 1) {
+                    return true;
+                } elseif ($success === 0) {
+                    return false;
+                }
+                // returns 1 on success, 0 on failure, -1 on error.
+                throw new DomainException(
+                    'OpenSSL error: ' . openssl_error_string()
+                );
+            case 'hash_hmac':
+            default:
+                $hash = hash_hmac($algorithm, $msg, $key, true);
+                if (function_exists('hash_equals')) {
+                    return hash_equals($signature, $hash);
+                }
+                $len = min(static::safeStrlen($signature), static::safeStrlen($hash));
+
+                $status = 0;
+                for ($i = 0; $i < $len; $i++) {
+                    $status |= (ord($signature[$i]) ^ ord($hash[$i]));
+                }
+                $status |= (static::safeStrlen($signature) ^ static::safeStrlen($hash));
+
+                return ($status === 0);
         }
     }
 }

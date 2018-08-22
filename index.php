@@ -17,6 +17,6 @@ $alg = Algorithms::HS256;
 
 echo $jwt = JWT::encoded($payload, $private_key, $alg).PHP_EOL;
 
-$result = JWT::decoded($jwt, $private_key).PHP_EOL;
+$result = JWT::decoded($jwt, $private_key);
 
 print_r($result);

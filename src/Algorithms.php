@@ -73,4 +73,25 @@ class Algorithms
                 return false;
         }
     }
+
+    public static function getNumber($name)
+    {
+        switch ($name)
+        {
+            case 'HS256':
+                return self::HS256;
+            case 'HS384':
+                return self::HS384;
+            case 'HS512':
+                return self::HS512;
+            case 'RS256':
+                return self::RS256;
+            case 'RS384':
+                return self::RS384;
+            case 'RS512':
+                return self::RS512;
+            default:
+                return false;
+        }
+    }
 }
